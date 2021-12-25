@@ -1,0 +1,263 @@
+@import "custom.scss";
+
+$navbarHeight: 56px;
+
+$landingPrimary: #ff4c6c;
+$landingDark: #7c1c2a;
+$landingBlack: #263238;
+$landingBlue: #407bff;
+
+header {
+  &.landing-header {
+    background: none !important;
+
+    nav.navbar {
+      background: none !important;
+      .navbar-collapse {
+        &.collapse {
+          &.show {
+            .navbar-nav {
+              background: #fff !important;
+            }
+          }
+        }
+      }
+    }
+    &.header-scrolled {
+      background: #fff !important;
+      transition: background 150ms ease-in-out;
+    }
+  }
+  nav.navbar .navbar-brand .logo {
+    font-weight: 600;
+    color: $landingDark;
+  }
+}
+
+.hero {
+  width: 100%;
+  height: 100vh;
+  background-image: url(../images/debe-bg.png);
+  background-color: #fff;
+  background-position: top center;
+  background-repeat: no-repeat;
+  background-size: cover;
+
+  h1 {
+    margin: 0;
+    font-size: 42px;
+    font-weight: 700;
+    color: $landingDark;
+  }
+  h2 {
+    color: $landingBlack;
+    margin: 15px 0 0 0;
+    font-size: 26px;
+  }
+  .btn-get-started {
+    margin-top: 30px;
+    line-height: 0;
+    padding: 14px 32px;
+    border-radius: 4px;
+    transition: 0.5s;
+    color: #fff;
+    background: $landingPrimary;
+    box-shadow: 0px 5px 30px rgba($landingPrimary, 0.4);
+    text-decoration: none;
+    span {
+      font-weight: 400;
+      font-size: 16px;
+      letter-spacing: 1px;
+    }
+    i {
+      margin-left: 8px;
+      font-size: 18px;
+      transition: 0.3s;
+    }
+    &:hover {
+      i {
+        transform: translateX(5px);
+      }
+    }
+  }
+  .hero-img {
+    text-align: right;
+  }
+  @media (min-width: 1024px) {
+    background-attachment: fixed;
+  }
+  @media (max-width: 991px) {
+    height: auto;
+    padding: 120px 0 60px 0;
+    .hero-img {
+      text-align: center;
+      margin-top: 80px;
+      img {
+        width: 80%;
+      }
+    }
+  }
+  @media (max-width: 768px) {
+    text-align: center;
+    h1 {
+      font-size: 32px;
+    }
+    h2 {
+      font-size: 24px;
+    }
+    img {
+      width: 100%;
+    }
+  }
+}
+.feature-img {
+  height: 240px;
+  width: auto;
+}
+
+.features {
+  box-shadow: 0px 6px 36px -12px rgba(1, 41, 112, 0.1);
+  .feature-box {
+    padding: 0.75rem;
+    transition: 0.3s;
+    height: 100%;
+    h3 {
+      color: #012970;
+      margin: 0;
+      font-size: 1rem;
+    }
+    i {
+      margin-right: 10px;
+      border-radius: 3px;
+      transition: 0.3s;
+      width: 1rem;
+      height: 1rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+    }
+  }
+}
+
+.read-more {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 2.5rem;
+
+  a {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f1f1fcc;
+  }
+  @media (max-width: 991px) {
+    display: none;
+  }
+}
+
+main.landing {
+  all: initial;
+}
+
+.features {
+  .btn.btn-primary {
+    background: #0875f7;
+  }
+}
+
+.portals {
+  width: 100%;
+  background-color: #fff;
+  ul {
+    list-style: none;
+    position: relative;
+    margin-left: 0.5rem;
+    padding-left: 1.5em;
+    font-size: 1.125rem;
+    margin-bottom: 0;
+
+    li:before {
+      content: "->";
+      position: absolute;
+      left: 0;
+    }
+  }
+  .btn.btn-primary {
+    background: $landingBlue;
+    border-color: $landingBlue;
+
+    &:active,
+    &:focus {
+      background: darken($landingBlue, 10);
+      border-color: darken($landingBlue, 10);
+    }
+  }
+
+  .btn.btn-outline-primary {
+    color: $landingBlue;
+    border-color: $landingBlue;
+
+    &:hover {
+      color: #ffffff;
+      background-color: $landingBlue;
+      border-color: $landingBlue;
+    }
+  }
+}
+
+.card.intro-card {
+  min-height: 350px;
+  .card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .head {
+    font-size: 24px;
+    font-weight: 500;
+  }
+}
+
+.landing {
+  &-page {
+    min-height: calc(100vh - #{$navbarHeight}) !important;
+    height: calc(100vh - #{$navbarHeight}) !important;
+
+    .options {
+      background: #efefef;
+      min-height: calc(100vh) !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+  height: 100%;
+  background-image: url(../images/debe-landing-full.png);
+  background-repeat: no-repeat;
+  background-size: cover;
+  padding: 5rem 4.5rem;
+  position: relative;
+
+  .intro-text {
+    font-size: 2rem;
+    font-weight: 500;
+  }
+
+  .intro-desc {
+    font-size: 1.25rem;
+    font-weight: 400;
+    margin: 1rem 0 3.5rem 0;
+  }
+
+  &-image {
+    background-repeat: no-repeat;
+    background-position: right center;
+    width: 100%;
+    height: 100%;
+  }
+}

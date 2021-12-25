@@ -1,0 +1,36 @@
+.venn {
+  &-container {
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    position: relative;
+
+    svg {
+      width: 100%;
+      height: auto;
+      user-select: none;
+    }
+  }
+
+  &-tooltip {
+    position: absolute;
+    text-align: center;
+    width: auto;
+    height: auto;
+    padding: 8px;
+    margin-top: -20px;
+    font: calc(0.6vh + 0.6vw) sans-serif;
+    background: #ddd;
+    pointer-events: none;
+    border-radius: 4px;
+    z-index: 10;
+  }
+  &-caption {
+    position: absolute;
+    bottom: 0;
+    font-size: calc(0.55vh + 0.55vw);
+    width: 100%;
+    text-align: center;
+  }
+}

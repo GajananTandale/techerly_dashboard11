@@ -1,0 +1,31 @@
+# TODO:
+
+- [x] Add basic and advanced options to registration form
+- [x] Add labels on axes
+- [x] Venn Diagram changes
+- [x] Venn diagram natural color intersection
+- [ ] Header for venn diagram sections (pending content)
+- [x] Bookmark, allow selection of all four options
+- [ ] Radial column chart
+  - [ ] Shift filter threshold from radial column chart to between bottom of line chart & line checkboxes
+    - [ ] Reduce size of checkboxes and text size
+  - [x] Delete threshold circle from the radial column chart
+  - [x] Instead of n=x written with each feedback click percentage, make it n percentage
+    - [x] Should we keep hover over feature here? mean if they hover over the % of clicks box the pop-up will show ‘Percentage of clicks’ and ‘Percentage of students’ for the other box
+    - [x] Keep font size of click percentages larger as compared to student percentages
+  - [ ] Header for radial column chart section
+- [x] Question tracker and action tracker: Link quesion generator with action tracker
+- [ ] Student feedback interface:
+  - [x] Keep 2 options in a row instead of 3 (which we currently have) with which the block sizes will be uniform and too much wrapping of the text can be avoided.
+  - [x] After ‘Other’, add one more button in light red colour with the following text in it: No further feedback.
+
+- [x] Filter threshold (urgent)
+- [x] Change data for venn diagram venn2, make it serial
+- [ ] Navbar changes on landing page & dashboard (remove right padding)
+- [x] Radial chart values is not total 100%
+- [x] Lesson dashboard open in new tab (lessons page)
+- [x] (*) Checkboxes size for line chart selection, lower the size
+- [ ] Wrap text in detailed feedback hover
+- [x] Reduce spacing between time range on save bookmark field
+- [x] Make row width for action tracker & question generator uniform
+- [x] Reduce size for video range selector 
