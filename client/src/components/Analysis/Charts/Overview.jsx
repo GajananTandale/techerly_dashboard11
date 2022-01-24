@@ -60,7 +60,7 @@ const CustomTooltip = ({ active, payload, activeFields = {}, details = false, yM
               </span>
             </div>
           )}
-          {difficult && (
+          {/* {difficult && (
             <div className="data" style={{ fontWeight: activeFields.difficult ? 600 : undefined }}>
               <span className="color" style={{ background: colors.difficult }}></span>
               <span className="name">Difficult: </span>
@@ -95,7 +95,7 @@ const CustomTooltip = ({ active, payload, activeFields = {}, details = false, yM
                 {getPercentage(details ? data.scatter_engaging : data.engaging)}
               </span>
             </div>
-          )}
+          )} */}
         </div>
 
         <p style={{ marginTop: ".8rem" }}>
@@ -164,8 +164,8 @@ const OverviewChart = ({ active = {} }) => {
           return classFeedback.map((cfb) => {
             return {
               minute: cfb.minute,
-              scatter_net_difficult: Math.round((cfb.difficult - cfb.easy) / 2),
-              scatter_net_engaging: Math.round((cfb.engaging - cfb.boring) / 2),
+              scatter_net_difficult: Math.round((cfb.difficult - cfb.easy)),
+              scatter_net_engaging: Math.round((cfb.engaging - cfb.boring) ),
               scatter_easy: cfb.easy,
               scatter_difficult: cfb.difficult,
               scatter_engaging: cfb.engaging,
@@ -233,8 +233,8 @@ const OverviewChart = ({ active = {} }) => {
         ...classFeedback.map((cfb) => {
           return {
             minute: cfb.minute,
-            scatter_net_difficult: Math.round((cfb.difficult - cfb.easy) / 2),
-            scatter_net_engaging: Math.round((cfb.engaging - cfb.boring) / 2),
+            scatter_net_difficult: Math.round((cfb.difficult - cfb.easy)),
+            scatter_net_engaging: Math.round((cfb.engaging - cfb.boring)),
             scatter_easy: cfb.easy,
             scatter_difficult: cfb.difficult,
             scatter_engaging: cfb.engaging,
@@ -311,7 +311,9 @@ const OverviewChart = ({ active = {} }) => {
 
           <Line opacity={showDetails ? 0.4 : 1} type="monotone" strokeWidth={active.engaging ? 3 : 0} activeDot={false} dot={false} animationDuration={300} dataKey="engaging" fill={colors.engaging} stroke={colors.engaging} />
 
-          {["difficult", "easy", "engaging", "boring", "net_difficult", "net_engaging"].map((dataKey) => (
+          {[
+            // "difficult", "easy", "engaging", "boring", 
+            "net_difficult", "net_engaging"].map((dataKey) => (
             <Scatter
               hide={!active[dataKey]}
               key={`scatter_${dataKey}_key`}
