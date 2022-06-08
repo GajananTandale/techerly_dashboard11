@@ -36,7 +36,7 @@ function LessonIdDashboard() {
     setData,
     range,
     setRange,
-    refreshing,
+    // refreshing,
     setRefreshing,
     act,
     setActivated,
@@ -141,8 +141,8 @@ function LessonIdDashboard() {
     setLesson,
     setRefreshing,
   ]);
-
-  if (loading || refreshing) return <Loader />;
+  // if (refreshing) return <Loader label="Refreshing" />;
+  if (loading ) return <Loader />;
   if (!user) return <Redirect to="/login" />;
   if (lesson) {
     return (

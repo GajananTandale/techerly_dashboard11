@@ -5,17 +5,19 @@ import useFeedback from "provider/feedback";
 const colors = {
   difficult: "#FF7785",
   easy: "#FFBC55",
-  net_difficult: "#FF9A6D",
+  // net_difficult: "#FF9A6D",
+  net_difficult: "#FF7785",
   boring: "#9F8CFF",
   engaging: "#69B9A6",
-  net_engaging: "#84A3D3",
+  // net_engaging: "#84A3D3",
+  net_engaging: "#9F8CFF",
   intersect: "#C84747",
 };
 
 const CustomTooltip = ({ active, payload, activeFields = {}, details = false, yMax = 10 }) => {
   if (active && payload && payload[0]) {
     const data = payload[0].payload;
-    const { net_engaging, net_difficult, difficult, easy, boring, engaging } = details
+    const { net_engaging, net_difficult } = details
       ? {
         net_engaging: true,
         net_difficult: true,

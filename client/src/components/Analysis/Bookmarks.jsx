@@ -357,7 +357,7 @@ function NewBookmarks() {
         <div className="bookmark-list">
           {bookmarks.map((bookmark, key) => {
             return (
-              <div className={"item" + (currentBookmark && currentBookmark._id === bookmark._id ? " active" : "")} key={key} ref={canScroll(bookmark._id, key) ? bookmarkRef : null} onClick={handleSwitchBookmark(key)}>
+              <div className={"item" + (currentBookmark && currentBookmark._id === bookmark._id ? " active" : "")} key={bookmark._id || "bookmark-" + key} ref={canScroll(bookmark._id, key) ? bookmarkRef : null} onClick={handleSwitchBookmark(key)}>
                 <div className="bm-range">
                   <div className="range-meter">
                     <div className="circle">
@@ -374,7 +374,7 @@ function NewBookmarks() {
                 <div className="bm-types">
                   {bookmark.feedback_type && Array.isArray(bookmark.feedback_type) ? (
                     bookmark.feedback_type.map((fd, k2) => (
-                      <div className="wrapper" key={k2}>
+                      <div className="wrapper" key={"bookmark-" + key + "-" + k2}>
                         <Badge key={k2} className={fd + " text-capitalize"}>
                           {String(fd)}
                         </Badge>

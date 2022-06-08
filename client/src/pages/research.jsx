@@ -103,11 +103,15 @@ function ResearchPage() {
                   </div>
 
                   <p className="pl-3 pr-2">
-                    <code>[7]</code> Chavan, P., & Mitra, R. Tcherly: A Teacher-facing Dashboard for Online Video Lectures. The Journal of Learning Analytics (in review).
+                    <code>[7]</code> Chavan, P., & Mitra, R. Tcherly: A Teacher-facing Dashboard for Online Video Lectures. The Journal of Learning Analytics (under revision).
                   </p>
 
                   <p className="pl-3 pr-2">
-                    <code>[6]</code> Chavan, P., Mitra, R., & Murallidharan, J. S. Multiscale nature of student and teacher perceptions of a mechanical engineering lecture. European Journal of Engineering Education (under revision).
+                    <code>[6]</code> Chavan, P., Mitra, R., & Murallidharan, J. S. (2022, March). Multiscale nature of student and teacher perceptions of a mechanical engineering lecture. European Journal of Engineering Education,{" "}
+                    <u>
+                      <em>DOI: 10.1080/03043797.2022.2047159</em>
+                    </u>{" "}
+                    (<Anchor href="https://www.tandfonline.com/doi/abs/10.1080/03043797.2022.2047159?journalCode=ceee20">link</Anchor>).
                   </p>
 
                   <p className="pl-3 pr-2">
