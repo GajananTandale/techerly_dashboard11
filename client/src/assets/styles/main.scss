@@ -278,7 +278,7 @@ $actionBtnH: 32px;
     }
     width: 160px;
     $netDifficultColor: $difficult;
-    $netEngagingColor: $boring;
+    $netEngagingColor: $engaging;
     &.net-difficult {
       .check {
         box-shadow: inset 0 0 0px calc(0.1vh + 0.1vw) $netDifficultColor;

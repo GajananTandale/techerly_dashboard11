@@ -10,7 +10,7 @@ const colors = {
   boring: "#9F8CFF",
   engaging: "#69B9A6",
   // net_engaging: "#84A3D3",
-  net_engaging: "#9F8CFF",
+  net_engaging: "#69B9A6",
   intersect: "#C84747",
 };
 
@@ -314,7 +314,7 @@ const OverviewChart = ({ active = {} }) => {
           <Line opacity={showDetails ? 0.4 : 1} type="monotone" strokeWidth={active.engaging ? 3 : 0} activeDot={false} dot={false} animationDuration={300} dataKey="engaging" fill={colors.engaging} stroke={colors.engaging} />
 
           {[
-            // "difficult", "easy", "engaging", "boring", 
+            // "difficult", "easy", "engaging", "boring",
             "net_difficult", "net_engaging"].map((dataKey) => (
             <Scatter
               hide={!active[dataKey]}
