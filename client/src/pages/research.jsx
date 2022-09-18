@@ -103,7 +103,7 @@ function ResearchPage() {
                   </div>
 
                   <p className="pl-3 pr-2">
-                    <code>[7]</code> Chavan, P., & Mitra, R. Tcherly: A Teacher-facing Dashboard for Online Video Lectures. The Journal of Learning Analytics (under revision).
+                    <code>[7]</code> Chavan, P., & Mitra, R. Tcherly: A Teacher-facing Dashboard for Online Video Lectures. The Journal of Learning Analytics (in press).
                   </p>
 
                   <p className="pl-3 pr-2">
