@@ -7,6 +7,7 @@ const Student = require("../database/models/student");
 const ExcelJS = require("exceljs");
 
 const { getClientIp, setUUIDCookie, isValidObjectId } = require("../handlers/misc");
+const { isBefore } = require("date-fns");
 
 /**
  * Difficult
@@ -45,8 +46,9 @@ const { getClientIp, setUUIDCookie, isValidObjectId } = require("../handlers/mis
  * presentation style of the teacher
  */
 
-const generateStudentMinuteData = (studentSecondData, lectureLength = 0, { min, max }, seconds = 0) => {
+const generateStudentMinuteData = (studentSecondData, lectureLength = 0, { min, max }, seconds = 0, lessonCreatedAt) => {
   if (Array.isArray(studentSecondData)) {
+    const ignoreThreshold = isBefore(lessonCreatedAt, new Date("2021-10-13T20:15:59.753+00:00"));
     const minThreshold = Math.floor((lectureLength * 60) / 120);
     const maxThreshold = (seconds || lectureLength * 60) - minThreshold;
     return studentSecondData.map((student) => {
@@ -72,53 +74,67 @@ const generateStudentMinuteData = (studentSecondData, lectureLength = 0, { min, 
         };
       });
 
-      if (Array.isArray(student.feedback))
-        student.feedback
-          .filter((feedback) => {
-            if (feedback && feedback.seconds) {
-              return feedback.seconds >= minThreshold && feedback.seconds <= maxThreshold;
-            }
-            return false;
-          })
-          .forEach((feedback) => {
-            const { seconds } = feedback;
-            // We round off seconds to minutes
-            const minute = Math.ceil(seconds / 60);
-            // Since this feedback array only contains fields where boolean fields are true
-            // We directly rewrite
-            if (minute >= 1 && minute <= lectureLength && !!studentMinuteDataDefault[minute - 1]) {
-              let value = {
-                details: {},
-                ...studentMinuteDataDefault[minute - 1],
-              };
+      if (Array.isArray(student.feedback)) {
+        let studentFeedbacks = student.feedback;
 
-              value.easy = feedback.easy || value.easy;
-              value.difficult = feedback.difficult || value.difficult;
-              value.engaging = feedback.engaging || value.engaging;
-              value.boring = feedback.boring || value.boring;
-              value.seconds = feedback.seconds;
-
-              const feedbackDetails = { ...feedback.details };
-              Object.keys(feedbackDetails).forEach((key) => (feedbackDetails[key] === undefined ? delete feedbackDetails[key] : {}));
-
-              value.details = { ...value.details, ...feedbackDetails };
-
-              if (feedback.easy) {
-                value.others.easy.push(feedback.details.other);
-              }
-              if (feedback.difficult) {
-                value.others.difficult.push(feedback.details.other);
-              }
-              if (feedback.engaging) {
-                value.others.engaging.push(feedback.details.other);
-              }
-              if (feedback.boring) {
-                value.others.boring.push(feedback.details.other);
-              }
-
-              studentMinuteDataDefault[minute - 1] = value;
-            }
+        if (!ignoreThreshold) {
+          studentFeedbacks = studentFeedbacks.filter((feedback) => {
+            return (
+              feedback.seconds &&
+              feedback.seconds >= minThreshold &&
+              feedback.seconds <= maxThreshold
+            );
           });
+        }
+
+        studentFeedbacks.forEach((feedback) => {
+          const { seconds } = feedback;
+          // We round off seconds to minutes
+          const minute = Math.ceil(seconds / 60);
+          // Since this feedback array only contains fields where boolean fields are true
+          // We directly rewrite
+          if (
+            minute >= 1 &&
+            minute <= lectureLength &&
+            !!studentMinuteDataDefault[minute - 1]
+          ) {
+            let value = {
+              details: {},
+              ...studentMinuteDataDefault[minute - 1],
+            };
+
+            value.easy = feedback.easy || value.easy;
+            value.difficult = feedback.difficult || value.difficult;
+            value.engaging = feedback.engaging || value.engaging;
+            value.boring = feedback.boring || value.boring;
+            value.seconds = feedback.seconds;
+
+            const feedbackDetails = { ...feedback.details };
+            Object.keys(feedbackDetails).forEach((key) =>
+              feedbackDetails[key] === undefined
+                ? delete feedbackDetails[key]
+                : {}
+            );
+
+            value.details = { ...value.details, ...feedbackDetails };
+
+            if (feedback.easy) {
+              value.others.easy.push(feedback.details.other);
+            }
+            if (feedback.difficult) {
+              value.others.difficult.push(feedback.details.other);
+            }
+            if (feedback.engaging) {
+              value.others.engaging.push(feedback.details.other);
+            }
+            if (feedback.boring) {
+              value.others.boring.push(feedback.details.other);
+            }
+
+            studentMinuteDataDefault[minute - 1] = value;
+          }
+        });
+      }
 
       // Return mapped output which has `lectureLength` entries in minute data
       return studentMinuteDataDefault.filter((s) => {
@@ -740,6 +756,8 @@ const exportFeedbackForLesson = async (req, res) => {
       const minThreshold = Math.floor(lectureLength / 120);
       const maxThreshold = lectureLength - minThreshold;
 
+      const ignoreThreshold = isBefore(lesson.createdAt, new Date("2021-10-13T20:15:59.753+00:00"));
+
       const feedbacks = await Feedback.find({ lesson: lesson._id }).sort("seconds").exec();
       const studentWiseObject = {};
       const studentArray = [];
@@ -752,7 +770,7 @@ const exportFeedbackForLesson = async (req, res) => {
           const unique_id = feedback.student_id || feedback.unique_id;
           if (!studentWiseObject[unique_id]) studentWiseObject[unique_id] = [];
 
-          if (feedback.seconds && feedback.seconds >= minThreshold && feedback.seconds <= maxThreshold) {
+          if (ignoreThreshold || (feedback.seconds && feedback.seconds >= minThreshold && feedback.seconds <= maxThreshold)) {
             studentWiseObject[unique_id].push(feedback);
           }
         }
@@ -777,7 +795,7 @@ const exportFeedbackForLesson = async (req, res) => {
       const lessonLength = lesson.minutes || Math.ceil(lesson.seconds / 60);
       const noRange = { min: 0, max: lessonLength };
 
-      const studentMinuteData = generateStudentMinuteData(studentArray, lessonLength, noRange, lesson.seconds);
+      const studentMinuteData = generateStudentMinuteData(studentArray, lessonLength, noRange, lesson.seconds, lesson.createdAt);
       const classFeedback = generateClassFeedback(studentMinuteData, lessonLength, noRange, lesson.seconds);
 
       // console.log(studentArray[0], studentMinuteData[0], classFeedback[0]);
@@ -947,8 +965,8 @@ const getAllFeedbackForLesson = async (req, res) => {
 
       const noRange = { min: 0, max: lessonLength };
 
-      const studentMinuteDataRanged = generateStudentMinuteData(studentSecondArray, lessonLength, { min, max }, lesson.seconds);
-      const studentMinuteData = generateStudentMinuteData(studentSecondArray, lessonLength, noRange, lesson.seconds);
+      const studentMinuteDataRanged = generateStudentMinuteData(studentSecondArray, lessonLength, { min, max }, lesson.seconds, lesson.createdAt);
+      const studentMinuteData = generateStudentMinuteData(studentSecondArray, lessonLength, noRange, lesson.seconds, lesson.createdAt);
       // writeFile("studentMinuteData.json", studentMinuteData);
 
       const overlappingData = generateOverlappingData(studentMinuteDataRanged);
