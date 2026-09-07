@@ -66,7 +66,7 @@ cp .env.example .env
 ```
 Key variables to verify:
 - `PORT`: Server port (default: `3000`).
-- `DB_URI`: MongoDB connection string (default: `"mongodb://localhost:27017/debe"`).
+- `DB_URI`: MongoDB connection string (`"mongodb://localhost:27017/debe"` in `.env.example`, falling back to `"mongodb://localhost:27017/test-debe"` if unset).
 - `JWT_SECRET`: Secret key for signing JSON Web Tokens.
 - `SESSION_SECRET`: Secret key for express session encryption.
 - `GOOGLE_API_KEY`: *(Optional in dev)* Google YouTube API Key to fetch lecture durations automatically during lesson creation.

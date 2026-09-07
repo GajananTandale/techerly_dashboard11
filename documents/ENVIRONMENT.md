@@ -13,7 +13,7 @@ The backend reads configuration from `.env` in the root project directory via `c
 | `HOSTNAME` | String | `localhost` | Hostname/interface for the Express server to bind to. | Optional |
 | `PORT` | Number | `3000` | Port for the Express server. | Optional |
 | `NODE_ENV` | String | `development` | Runtime environment (`development` or `production`). In development, CORS is enabled and morgan logs to console. | Optional |
-| `DB_URI` | String | `mongodb://localhost:27017/test-debe` | MongoDB connection URI for local or remote database. | **Required** |
+| `DB_URI` | String | `mongodb://localhost:27017/test-debe` (`debe` in `.env.example`) | MongoDB connection URI for local or remote database. Falls back to `test-debe` when unset. | Optional (Required in Prod) |
 | `DB_PROD` | String | — | Production MongoDB connection string (e.g. MongoDB Atlas). Used if specified. | Optional |
 | `SESSION_EXPIRATION` | Number | `604800000` (7 days) | Express session duration in milliseconds. | Optional |
 | `SESSION_SECRET` | String | `setup_dotenv_file_for_security` | Secret used to sign session cookies. Must be changed in production. | **Required in Prod** |

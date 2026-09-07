@@ -1,7 +1,7 @@
 # Tcherly — Codebase Overview & System Reference
 
 Generated documentation for the **Tcherly** (legacy: DEBE) online student-feedback tool.
-Analysed at commit `520a74c` on `master`.
+Analysed at commit `520a74c` on `main`.
 
 ---
 

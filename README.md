@@ -104,7 +104,7 @@ Ensure you have the following installed:
    ```bash
    npm install --global yarn
    ```
-3. **[MongoDB](https://www.mongodb.com/)** (v4.4+) running locally (`mongodb://localhost:27017/debe`) or via a remote connection string.
+3. **[MongoDB](https://www.mongodb.com/)** (v4.4+) running locally (`mongodb://localhost:27017/debe` in `.env.example`, falling back to `mongodb://localhost:27017/test-debe`) or via a remote connection string.
 
 ### Step-by-step Setup
 

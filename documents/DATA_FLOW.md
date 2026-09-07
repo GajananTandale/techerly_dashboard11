@@ -1,6 +1,6 @@
 # Data Flow Diagrams
 
-Companion to [`../CODEBASE_KNOWLEDGE.md`](../CODEBASE_KNOWLEDGE.md).
+Companion to [`OVERVIEW.md`](./OVERVIEW.md).
 
 ---
 
