@@ -36,7 +36,7 @@ The React application (Create React App) reads configuration prefixed with `REAC
 | Variable | Type | Default | Description | Required? |
 |---|---|---|---|---|
 | `PORT` | Number | `8080` | Port for the Webpack dev server. Set in `client/.env`. | Optional |
-| `REACT_APP_API_URL` | String | `http://localhost:3000/api` | Base URL pointing to the Express backend API. | **Required** |
+| `REACT_APP_API_URL` | String | `http://localhost:3000/api` | Base URL pointing to the Express backend API. In production builds, the client automatically resolves to `/api/`. | Required in dev |
 | `REACT_APP_MOBILE_API_URL` | String | — | Optional local static IP for testing student video interactions on mobile devices on the local network. | Optional |
 
 ---

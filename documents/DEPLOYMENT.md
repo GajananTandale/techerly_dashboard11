@@ -147,7 +147,7 @@ Configure the client environment:
 cp client/.env.example client/.env
 nano client/.env
 ```
-Ensure the API URL points to your domain or `/api`:
+Configure the client API endpoint (in production, the client automatically resolves to `/api/`):
 ```ini
 REACT_APP_API_URL="/api"
 ```
