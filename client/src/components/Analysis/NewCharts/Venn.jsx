@@ -248,7 +248,9 @@ export function VennDiagrama({ name = "", sets = [], caption = "" }) {
 export default function Venn() {
   const { data, refreshing, activated } = useFeedback();
 
-  const active = activated.reduce((pv, cv) => {
+  const safeActivated = Array.isArray(activated) ? activated : [];
+
+  const active = safeActivated.reduce((pv, cv) => {
     return { ...pv, [cv]: true };
   }, {});
 
@@ -316,9 +318,11 @@ export default function Venn() {
       { sets: ["Difficult"], size: data.venn.difficult || 0, invisible: true, active: difficultActive },
       { sets: ["Easy"], size: data.venn.easy || 0, invisible: true, active: easyActive },
       { sets: ["Boring"], size: data.venn.boring || 0, color: colors.boring, active: boringActive },
-      { sets: ["Engaging"], size: data.venn.engaging || 0, color: colors.engaging, active: engagingActive },
+      { sets: ["Engaging"], size: data.venn.engaging || 0, invisible: true, active: engagingActive },
       { sets: ["Engaging", "Boring"], size: data.venn.boring_engaging || 0, color: colors.boring_engaging, active: boringActive && engagingActive },
     ];
+
+    const activatedKey = safeActivated.join(",");
 
     return refreshing ? (
       <Loader asDiv />
@@ -335,10 +339,10 @@ export default function Venn() {
           </div>
         </div>
         <div className="td-venn-left">
-          {toggleType ? <VennDiagrama caption="Engaging - Difficult - Boring" name="set1" sets={venn1} key={activated.join(",") + 1} /> : <VennDiagrama caption="Difficult - Easy" name="set3" sets={venn3} key={activated.join(",") + 3} />}
+          {toggleType ? <VennDiagrama caption="Engaging - Difficult - Boring" name="set1" sets={venn1} key={activatedKey + 1} /> : <VennDiagrama caption="Difficult - Easy" name="set3" sets={venn3} key={activatedKey + 3} />}
         </div>
         <div className="td-venn-right">
-          {toggleType ? <VennDiagrama caption="Engaging - Easy - Boring" name="set2" sets={venn2} key={activated.join(",") + 2} /> : <VennDiagrama caption="Boring - Engaging" name="set4" sets={venn4} key={activated.join(",") + 4} />}
+          {toggleType ? <VennDiagrama caption="Engaging - Easy - Boring" name="set2" sets={venn2} key={activatedKey + 2} /> : <VennDiagrama caption="Boring - Engaging" name="set4" sets={venn4} key={activatedKey + 4} />}
         </div>
       </>
     );

@@ -31,14 +31,15 @@ const handleSliderThumb =
     );
 
 function Overview() {
-  const { activated } = useFeedback();
+  const { activated = [] } = useFeedback();
+  const activeFilters = (Array.isArray(activated) ? activated : []).reduce((pv, cv) => ({ ...pv, [cv]: true }), {});
   return (
     <div className="nd-overview">
       <OverviewVideo />
       <div className="nd-overview-slider">
         <OverviewRange />
       </div>
-      <div className="nd-overview-chart">{<OverviewChart active={activated.reduce((pv, cv) => ({ ...pv, [cv]: true }), {})} />}</div>
+      <div className="nd-overview-chart">{<OverviewChart active={activeFilters} />}</div>
       <OverviewButtons />
     </div>
   );
@@ -55,7 +56,7 @@ export function OverviewRange() {
 
   const STEP = 1;
   const MIN = 0;
-  const MAX = lesson.minutes;
+  const MAX = (lesson && typeof lesson.minutes === "number" && lesson.minutes > 0) ? lesson.minutes : 1;
 
   const [values, setValues] = useState(range);
   const handleSliderChange = (v) => {
@@ -93,8 +94,10 @@ export function OverviewRange() {
 }
 
 export function OverviewButtons() {
-  const { activated, setActivated, setHasChanges } = useFeedback();
+  const { activated = [], setActivated, setHasChanges } = useFeedback();
   const { user, setShowUpgradeModal } = useAuth();
+
+  const safeActivated = Array.isArray(activated) ? activated : [];
 
   const toggleActivated = (key) => (e) => {
     e.preventDefault();
@@ -103,17 +106,18 @@ export function OverviewButtons() {
       return;
     }
     setActivated((a) => {
-      const index = a.indexOf(key);
+      const currentList = Array.isArray(a) ? a : [];
+      const index = currentList.indexOf(key);
 
       if (index > -1) {
-        const result = Array.from(a);
+        const result = Array.from(currentList);
         result.splice(index, 1);
 
         return result;
       }
 
-      if (a.length < 2) {
-        return [...a, key];
+      if (currentList.length < 2) {
+        return [...currentList, key];
       }
 
       return [key];
@@ -124,14 +128,14 @@ export function OverviewButtons() {
   return (
     <div className="nd-overview-selection">
       <div className="nd-row">
-        <Button active={activated.includes("net_difficult")} onClick={toggleActivated("net_difficult")} variant="net-difficult small" title="Net Difficulty" />
-        <Button active={activated.includes("net_engaging")} onClick={toggleActivated("net_engaging")} variant="net-engaging small" title="Net Engagement" />
+        <Button active={safeActivated.includes("net_difficult")} onClick={toggleActivated("net_difficult")} variant="net-difficult small" title="Net Difficulty" />
+        <Button active={safeActivated.includes("net_engaging")} onClick={toggleActivated("net_engaging")} variant="net-engaging small" title="Net Engagement" />
       </div>
       <div className="nd-row mt-3">
-        <Button active={activated.includes("difficult")} onClick={toggleActivated("difficult")} variant="difficult small" title="Difficult" />
-        <Button active={activated.includes("easy")} onClick={toggleActivated("easy")} variant="easy small" title="Easy" />
-        <Button active={activated.includes("boring")} onClick={toggleActivated("boring")} variant="boring small" title="Boring" />
-        <Button active={activated.includes("engaging")} onClick={toggleActivated("engaging")} variant="engaging small" title="Engaging" />
+        <Button active={safeActivated.includes("difficult")} onClick={toggleActivated("difficult")} variant="difficult small" title="Difficult" />
+        <Button active={safeActivated.includes("easy")} onClick={toggleActivated("easy")} variant="easy small" title="Easy" />
+        <Button active={safeActivated.includes("boring")} onClick={toggleActivated("boring")} variant="boring small" title="Boring" />
+        <Button active={safeActivated.includes("engaging")} onClick={toggleActivated("engaging")} variant="engaging small" title="Engaging" />
       </div>
     </div>
   );

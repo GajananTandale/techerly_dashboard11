@@ -45,24 +45,26 @@ const convertToOtherData = (data = []) => {
 function DetailedFeedbackChart() {
   const { data, activated } = useFeedback();
 
-  const active = activated.reduce((pv, cv) => {
+  const active = (Array.isArray(activated) ? activated : []).reduce((pv, cv) => {
     return { ...pv, [cv]: true };
   }, {});
 
   const feedbackSubTypes = useOptionsSubTypes();
 
-  const convertDifficultData = (data = []) =>
-    data.map((d) => ({
-      name: feedbackSubTypes[d.key],
-      others: d.others,
-      percentage: d.percentage,
-      values: d.values
-        ? d.values.map((dVal) => ({
-            name: feedbackSubTypes[dVal.key],
-            percentage: dVal.percentage,
-          }))
-        : null,
-    }));
+  const convertDifficultData = (dArray = []) =>
+    Array.isArray(dArray)
+      ? dArray.map((d) => ({
+          name: feedbackSubTypes[d.key],
+          others: d.others,
+          percentage: d.percentage,
+          values: d.values
+            ? d.values.map((dVal) => ({
+                name: feedbackSubTypes[dVal.key],
+                percentage: dVal.percentage,
+              }))
+            : null,
+        }))
+      : [];
 
   const difficultActive = active.net_difficult || active.difficult;
   const easyActive = active.net_difficult || active.easy;
@@ -76,18 +78,21 @@ function DetailedFeedbackChart() {
     { name: "Engaging", key: "engaging", color: colors.engaging, active: engagingActive },
   ];
 
+  const detailedData = data && data.detailed ? data.detailed : {};
+  const othersData = detailedData && detailedData.others ? detailedData.others : {};
+
   const divisionsData = {
-    easy: convertDifficultData(data.detailed.easy),
-    difficult: convertDifficultData(data.detailed.difficult),
-    engaging: convertDifficultData(data.detailed.engaging),
-    boring: convertDifficultData(data.detailed.boring),
+    easy: convertDifficultData(detailedData.easy),
+    difficult: convertDifficultData(detailedData.difficult),
+    engaging: convertDifficultData(detailedData.engaging),
+    boring: convertDifficultData(detailedData.boring),
   };
 
   const otherData = {
-    easy: convertToOtherData(data.detailed.others.easy),
-    difficult: convertToOtherData(data.detailed.others.difficult),
-    engaging: convertToOtherData(data.detailed.others.engaging),
-    boring: convertToOtherData(data.detailed.others.boring),
+    easy: convertToOtherData(othersData.easy),
+    difficult: convertToOtherData(othersData.difficult),
+    engaging: convertToOtherData(othersData.engaging),
+    boring: convertToOtherData(othersData.boring),
   };
 
   return (

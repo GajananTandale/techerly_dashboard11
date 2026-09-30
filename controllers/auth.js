@@ -29,8 +29,7 @@ const afterAuth = async (req, res) => {
           refreshExpiresIn = newRefreshToken.expire_at;
         }
         let { token, expiry } = user.genToken();
-        let cookie_opts = { httpOnly: true };
-        if (process.env.NODE_ENV === "production") cookie_opts.sameSite = true;
+        let cookie_opts = { httpOnly: true, sameSite: "lax" };
         if (save_cookie) cookie_opts.maxAge = config.token.refreshExpiresIn;
 
         res.cookie("debe_token", refresh_token, cookie_opts);

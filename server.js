@@ -35,6 +35,7 @@ const passport = require("./middleware/passport");
 
 (async () => {
   const app = express();
+  app.set("trust proxy", true);
   const port = normalizePort(process.env.PORT || "3000");
 
   app.set("port", port);
@@ -44,7 +45,7 @@ const passport = require("./middleware/passport");
   app.use(express.urlencoded({ extended: true }));
   app.use(cookieParser());
 
-  if (process.env.NODE_ENV !== "production") app.use(cors(corsOpts));
+  app.use(cors(corsOpts));
 
   try {
     await db.connect();
@@ -60,7 +61,6 @@ const passport = require("./middleware/passport");
 
   app.use(passport.initialize());
 
-  app.set("trust proxy", true);
   app.set("views", path.join(__dirname, "views"));
   app.set("view engine", "hbs");
 

@@ -286,10 +286,10 @@ const generateClickDistribution = (classFeedback = []) => {
     }
     const total_easy_difficult = sum_easy + sum_difficult;
     const total_engaging_boring = sum_engaging + sum_boring;
-    const percentage_easy = sum_easy / total_easy_difficult;
-    const percentage_difficult = sum_difficult / total_easy_difficult;
-    const percentage_engaging = sum_engaging / total_engaging_boring;
-    const percentage_boring = sum_boring / total_engaging_boring;
+    const percentage_easy = total_easy_difficult > 0 ? sum_easy / total_easy_difficult : 0;
+    const percentage_difficult = total_easy_difficult > 0 ? sum_difficult / total_easy_difficult : 0;
+    const percentage_engaging = total_engaging_boring > 0 ? sum_engaging / total_engaging_boring : 0;
+    const percentage_boring = total_engaging_boring > 0 ? sum_boring / total_engaging_boring : 0;
     return {
       sum_easy,
       sum_difficult,

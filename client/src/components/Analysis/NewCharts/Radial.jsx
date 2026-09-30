@@ -13,19 +13,19 @@ function Radial() {
   useEffect(() => {
     const participation_all = data.participation_all;
 
-    if (participation_all && lesson.watched) {
+    if (participation_all && lesson && Array.isArray(lesson.watched)) {
       const validResponsesSet = new Set();
 
       if (participation_all) {
-        participation_all.easy.forEach(validResponsesSet.add, validResponsesSet);
-        participation_all.difficult.forEach(validResponsesSet.add, validResponsesSet);
-        participation_all.engaging.forEach(validResponsesSet.add, validResponsesSet);
-        participation_all.boring.forEach(validResponsesSet.add, validResponsesSet);
+        if (Array.isArray(participation_all.easy)) participation_all.easy.forEach(validResponsesSet.add, validResponsesSet);
+        if (Array.isArray(participation_all.difficult)) participation_all.difficult.forEach(validResponsesSet.add, validResponsesSet);
+        if (Array.isArray(participation_all.engaging)) participation_all.engaging.forEach(validResponsesSet.add, validResponsesSet);
+        if (Array.isArray(participation_all.boring)) participation_all.boring.forEach(validResponsesSet.add, validResponsesSet);
       }
 
       setValidResponses(validResponsesSet.size);
     }
-  }, [data.participation_all, lesson.watched]);
+  }, [data.participation_all, lesson ? lesson.watched : null]);
 
   const [toggleRadial, setToggleRadial] = useState(false);
 
@@ -37,7 +37,7 @@ function Radial() {
     setToggleRadial(val);
   };
 
-  const active = activated.reduce((pv, cv) => {
+  const active = (Array.isArray(activated) ? activated : []).reduce((pv, cv) => {
     return { ...pv, [cv]: true };
   }, {});
 

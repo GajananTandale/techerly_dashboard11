@@ -15,10 +15,11 @@ import { useAuth } from "provider/auth";
 import AIInsight from "components/Analysis/AIInsight";
 
 function AdvancedDashboard({ dummyPlayer = false }) {
-  const { activated } = useFeedback();
+  const { activated = [] } = useFeedback();
   const { user } = useAuth();
 
   const isAdvanced = user.feature_level === "advanced";
+  const activeFilters = (Array.isArray(activated) ? activated : []).reduce((pv, cv) => ({ ...pv, [cv]: true }), {});
 
   return (
     <>
@@ -30,7 +31,7 @@ function AdvancedDashboard({ dummyPlayer = false }) {
               <div className="td-linechart">
                 <div className="td-linechart-inner">
                   <OverviewRange />
-                  <OverviewChart active={activated.reduce((pv, cv) => ({ ...pv, [cv]: true }), {})} />
+                  <OverviewChart active={activeFilters} />
                   <OverviewButtons />
                 </div>
               </div>

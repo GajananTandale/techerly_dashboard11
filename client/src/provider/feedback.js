@@ -59,7 +59,9 @@ function useFeedbackProvider(props) {
       });
 
       setActivated(ac => {
-        return currentBookmark.linechart_feedback || ac;
+        const val = currentBookmark.linechart_feedback;
+        if (Array.isArray(val) && val.length > 0) return val;
+        return Array.isArray(ac) && ac.length > 0 ? ac : ["net_engaging", "net_difficult"];
       });
     }
   }, [currentBookmark]);
