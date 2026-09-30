@@ -12,6 +12,7 @@ import ActionTracker, { ActionTrackerBasic } from "components/Analysis/ActionTra
 import useFeedback from "provider/feedback";
 import UpgradeBlock from "./UpgradeBlock";
 import { useAuth } from "provider/auth";
+import AIInsight from "components/Analysis/AIInsight";
 
 function AdvancedDashboard({ dummyPlayer = false }) {
   const { activated } = useFeedback();

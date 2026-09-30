@@ -1,7 +1,7 @@
 const crs = require("crypto-random-string");
 const Course = require("../database/models/course");
 const Lesson = require("../database/models/lesson");
-const { youtube } = require("../utils/youtube");
+const { getVideoMetadata } = require("../utils/youtube");
 const { dashIt } = require("../handlers/misc");
 
 const isValidObjectId = (str) => {
@@ -139,7 +139,7 @@ const addNewLesson = async (req, res) => {
         success: false,
         message: "Provide required fields",
       });
-    const { durationSeconds } = await youtube.getVideo(youtube_link);
+    const { durationSeconds } = await getVideoMetadata(youtube_link);
     const { id } = req.params;
     const user_id = req.user ? req.user._id : null;
     const unique_name = dashIt(name);
@@ -173,12 +173,26 @@ const addNewLesson = async (req, res) => {
           });
         }
       }
+
+      return res.status(404).send({
+        success: false,
+        message: "Course not found",
+      });
     }
-  } catch (error) {
-    console.log(error);
+
     return res.status(500).send({
       success: false,
-      message: "Internal server error",
+      message: "Could not create lesson",
+    });
+  } catch (error) {
+    console.log(error);
+    const message =
+      error.message && error.message.includes("YouTube")
+        ? error.message
+        : "Could not save lesson. Check the YouTube URL and try again.";
+    return res.status(500).send({
+      success: false,
+      message,
     });
   }
 };

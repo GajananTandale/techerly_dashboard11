@@ -2,7 +2,7 @@ const crs = require("crypto-random-string");
 const Lesson = require("../database/models/lesson");
 const Bookmark = require("../database/models/bookmark");
 const { dashIt } = require("../handlers/misc");
-const { youtube } = require("../utils/youtube");
+const { getVideoMetadata } = require("../utils/youtube");
 
 const genName = (name = "") => name + "-" + crs({ length: 6, characters: "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ" });
 
@@ -132,7 +132,7 @@ const lessonEdit = async (req, res) => {
       }
       if (lesson.desc !== desc) lesson.desc = desc;
       if (lesson.youtube_link !== youtube_link) {
-        const { durationSeconds } = await youtube.getVideo(youtube_link);
+        const { durationSeconds } = await getVideoMetadata(youtube_link);
 
         lesson.youtube_link = youtube_link;
         lesson.seconds = durationSeconds;

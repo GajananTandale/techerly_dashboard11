@@ -15,11 +15,14 @@ const {
 } = require("../controllers/lesson");
 const { getLesson, checkLessonBelongsToUser,  } = require("../controllers/course");
 const { recordFeedback, getAllFeedbackForLesson, watchedVideo, exportFeedbackForLesson } = require("../controllers/feedback");
-const { logInteraction } = require('../controllers/log')
+const { logInteraction } = require('../controllers/log');
+const { getAIAnalysis, askAI } = require('../controllers/ai');
 
 router.get("/:id", getLesson);
 router.get("/:id/feedback", verifyMiddleware, verifyResourceIsForUser(checkLessonBelongsToUser), getAllFeedbackForLesson);
 router.get("/:id/feedback-export", rVerifyMiddleware, exportFeedbackForLesson);
+router.get("/:id/ai-analysis", verifyMiddleware, verifyResourceIsForUser(checkLessonBelongsToUser), getAIAnalysis);
+router.post("/:id/ask-ai", verifyMiddleware, verifyResourceIsForUser(checkLessonBelongsToUser), askAI);
 
 router.post("/:id", studentVerifyMiddleware, recordFeedback);
 router.post("/:id/watched", studentVerifyMiddleware, watchedVideo);

@@ -1,12 +1,20 @@
 import useFeedback from "provider/feedback";
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import { useFormik } from "formik";
 import { useAuth } from "provider/auth";
+import { useParams } from "react-router-dom";
 
 function QuestionGenerator() {
-  const { currentBookmark, setCurrentBookmark, questions, setQuestions } = useFeedback();
+  const { lesson, range, currentBookmark, setCurrentBookmark, questions, setQuestions } = useFeedback();
   const { request } = useAuth();
+  const { id } = useParams();
+
+  const lessonId = id || (lesson && lesson._id);
+
+  const [aiFindings, setAiFindings] = useState([]);
+  const [loadingAI, setLoadingAI] = useState(false);
+  const subs = useRef(true);
 
   const [showModal, setShowModal] = useState({
     add: false,
@@ -18,15 +26,53 @@ function QuestionGenerator() {
     setShowModal({ add: false, edit: false, delete: false });
   };
 
+  // Fetch AI Findings & Suggestions dynamically whenever the timeline range (timestamp) changes
+  useEffect(() => {
+    if (!lessonId || !range) return;
+
+    setLoadingAI(true);
+    const minVal = range[0] || 0;
+    const maxVal = range[1] || (lesson ? lesson.minutes : 0);
+
+    request("GET", `/lessons/${lessonId}/ai-analysis?min=${minVal}&max=${maxVal}`)
+      .then(({ data: res }) => {
+        if (!subs.current) return;
+        if (res && res.success && Array.isArray(res.findings) && res.findings.length > 0) {
+          setAiFindings(res.findings);
+        } else if (res && res.success && res.finding) {
+          setAiFindings([res.finding]);
+        } else if (res && res.insufficientData) {
+          setAiFindings([
+            {
+              topic: res.topic || res.videoName || "Lecture Concept",
+              observation: `[${res.timeSegment}] Insufficient student feedback data recorded for this timestamp range.`,
+              suggestion: "Collect student reactions during video playback to generate timestamp-driven AI findings and suggestions.",
+              timeSegment: res.timeSegment,
+              insufficient: true,
+            },
+          ]);
+        } else {
+          setAiFindings([]);
+        }
+      })
+      .catch(() => {
+        if (subs.current) setAiFindings([]);
+      })
+      .finally(() => {
+        if (subs.current) setLoadingAI(false);
+      });
+
+    return () => {
+      subs.current = true;
+    };
+  }, [range, lessonId, lesson, request]);
+
   const addFormik = useFormik({
     initialValues: {
       name: "",
       action: "",
     },
     onSubmit: (values, { resetForm }) => {
-      // TODO: After currentBookmark setup
-      // api.put(`/lessons/${lesson._id}/${bookmark._id}`);
-
       if (currentBookmark) {
         request("PUT", `/lessons/bookmark/${currentBookmark._id}/add-question`, {
           question: {
@@ -38,7 +84,7 @@ function QuestionGenerator() {
         setCurrentBookmark((s) => {
           return {
             ...s,
-            questions: [...s.questions, values],
+            questions: [...(s.questions || []), values],
           };
         });
       } else {
@@ -58,7 +104,7 @@ function QuestionGenerator() {
     onSubmit: (values, { resetForm }) => {
       if (currentBookmark) {
         setCurrentBookmark((cb) => {
-          const result = Array.from(cb.questions);
+          const result = Array.from(cb.questions || []);
 
           if (result) {
             const r = result[showModal.edit];
@@ -97,7 +143,7 @@ function QuestionGenerator() {
 
     if (currentBookmark) {
       setCurrentBookmark((cb) => {
-        const result = Array.from(cb.questions);
+        const result = Array.from(cb.questions || []);
 
         if (result) {
           result.splice(showModal.delete, 1);
@@ -130,7 +176,7 @@ function QuestionGenerator() {
       setShowModal({ add: true, edit: false, delete: false });
     } else if (type === "edit") {
       let v;
-      if (currentBookmark) {
+      if (currentBookmark && currentBookmark.questions) {
         v = currentBookmark.questions[id];
       } else {
         v = questions[id];
@@ -142,11 +188,13 @@ function QuestionGenerator() {
     }
   };
 
+  const manualQuestions = currentBookmark ? currentBookmark.questions || [] : questions;
+
   return (
     <>
       <Modal centered show={showModal.add} onHide={handleCloseModal}>
         <Modal.Header closeButton>
-          <Modal.Title>Add questions</Modal.Title>
+          <Modal.Title>Add question or finding</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
@@ -154,7 +202,7 @@ function QuestionGenerator() {
               <Form.Label>Enter your question or finding here</Form.Label>
               <Form.Control as="textarea" onChange={addFormik.handleChange} value={addFormik.values.name} name="name" type="text" />
             </Form.Group>
-            <Form.Group controlId="add-question-name">
+            <Form.Group controlId="add-question-action">
               <Form.Label>Enter your thoughts about what can be done based on above</Form.Label>
               <Form.Control as="textarea" onChange={addFormik.handleChange} value={addFormik.values.action} name="action" type="text" />
             </Form.Group>
@@ -169,17 +217,18 @@ function QuestionGenerator() {
           </Button>
         </Modal.Footer>
       </Modal>
+
       <Modal centered show={showModal.edit !== false} onHide={handleCloseModal}>
         <Modal.Header closeButton>
           <Modal.Title>Edit question</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
-            <Form.Group controlId="add-question-name">
+            <Form.Group controlId="edit-question-name">
               <Form.Label>Enter your question or finding here</Form.Label>
               <Form.Control as="textarea" onChange={editFormik.handleChange} value={editFormik.values.name} name="name" type="text" />
             </Form.Group>
-            <Form.Group controlId="add-question-name">
+            <Form.Group controlId="edit-question-action">
               <Form.Label>Enter your thoughts about what can be done based on above</Form.Label>
               <Form.Control as="textarea" onChange={editFormik.handleChange} value={editFormik.values.action} name="action" type="text" />
             </Form.Group>
@@ -194,6 +243,7 @@ function QuestionGenerator() {
           </Button>
         </Modal.Footer>
       </Modal>
+
       <Modal centered show={showModal.delete !== false} onHide={handleCloseModal}>
         <Modal.Header closeButton>
           <Modal.Title className="text-danger">Delete question</Modal.Title>
@@ -211,8 +261,8 @@ function QuestionGenerator() {
           </Button>
         </Modal.Footer>
       </Modal>
+
       <div className="td-questions-container">
-        {/* {questions.length > 0 ? ( */}
         <div className="td-qgat-container">
           <div className="td-qgat-header">
             <div className="td-qgat header-row">
@@ -227,41 +277,66 @@ function QuestionGenerator() {
             </div>
           </div>
           <div className="td-qgat-rows">
-            {currentBookmark
-              ? currentBookmark.questions.map((question, k) => {
-                  return (
-                    <div className="td-qgat" key={k}>
-                      <div className="c1">{k + 1}</div>
-                      <div className="c2">{question.name}</div>
-                      <div className="c3">{question.action}</div>
-                      <div className="c4">
-                        <div title="Edit" className="btn btn-sm btn-edit mr-2" onClick={handleShowModal("edit", k)}>
-                          <i className="fas fa-pen" />
-                        </div>
-                        <div title="Delete" className="btn btn-sm btn-delete" onClick={handleShowModal("delete", k)}>
-                          <i className="fas fa-trash" />
-                        </div>
-                      </div>
+            {/* AI Generated Finding Rows for Selected Timestamp */}
+            {loadingAI ? (
+              <div className="td-qgat ai-row-loading">
+                <div className="c1">AI</div>
+                <div className="c2 text-muted">
+                  <i className="fa fa-spinner fa-spin mr-1" /> Analyzing timestamp feedback & DEBE reasons...
+                </div>
+                <div className="c3 text-muted">Generating suggestions...</div>
+                <div className="c4">
+                  <span className="badge badge-secondary p-1">Loading</span>
+                </div>
+              </div>
+            ) : (
+              aiFindings.map((item, idx) => (
+                <div className="td-qgat ai-row-highlight" key={`ai-finding-${idx}`}>
+                  <div className="c1" style={{ fontWeight: 700, color: "#4f46e5" }}>AI</div>
+                  <div className="c2" style={{ fontWeight: 500, color: "#1e1b4b" }}>
+                    <span style={{ fontSize: "0.72rem", background: "#e0e7ff", color: "#3730a3", padding: "2px 6px", borderRadius: "4px", marginRight: "6px", fontWeight: 700 }}>
+                      AI FINDING
+                    </span>
+                    {item.observation}
+                  </div>
+                  <div className="c3" style={{ color: "#064e3b" }}>
+                    <span style={{ fontSize: "0.72rem", background: "#d1fae5", color: "#065f46", padding: "2px 6px", borderRadius: "4px", marginRight: "6px", fontWeight: 700 }}>
+                      SUGGESTION
+                    </span>
+                    {item.suggestion}
+                  </div>
+                  <div className="c4">
+                    <span className="badge badge-info p-1" style={{ fontSize: "0.7rem" }}>AI Auto</span>
+                  </div>
+                </div>
+              ))
+            )}
+
+            {/* Manually Added Questions */}
+            {manualQuestions.map((question, k) => {
+              const rowNum = k + 1;
+              return (
+                <div className="td-qgat" key={k}>
+                  <div className="c1">{rowNum}</div>
+                  <div className="c2">{question.name}</div>
+                  <div className="c3">{question.action}</div>
+                  <div className="c4">
+                    <div title="Edit" className="btn btn-sm btn-edit mr-2" onClick={handleShowModal("edit", k)}>
+                      <i className="fas fa-pen" />
                     </div>
-                  );
-                })
-              : questions.map((question, k) => {
-                  return (
-                    <div className="td-qgat" key={k}>
-                      <div className="c1">{k + 1}</div>
-                      <div className="c2">{question.name}</div>
-                      <div className="c3">{question.action}</div>
-                      <div className="c4">
-                        <div title="Edit" className="btn btn-edit mr-2">
-                          <i className="far fa-pen" />
-                        </div>
-                        <div title="Delete" className="btn btn-delete">
-                          <i className="far fa-trash" />
-                        </div>
-                      </div>
+                    <div title="Delete" className="btn btn-sm btn-delete" onClick={handleShowModal("delete", k)}>
+                      <i className="fas fa-trash" />
                     </div>
-                  );
-                })}
+                  </div>
+                </div>
+              );
+            })}
+
+            {aiFindings.length === 0 && manualQuestions.length === 0 && !loadingAI && (
+              <div className="td-qgat text-center text-muted p-2">
+                No questions or findings added yet. Click "Add Question" to add manually.
+              </div>
+            )}
           </div>
         </div>
       </div>

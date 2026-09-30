@@ -7,9 +7,9 @@ module.exports = session({
   name: "sessionId",
   secret: config.session.secret,
   cookie: {
-    secure: true,
+    secure: process.env.NODE_ENV === "production",
     httpOnly: true,
-    expires: new Date(Date.now() + config.session.maxAge)
+    maxAge: config.session.maxAge
   },
   resave: false,
   saveUninitialized: false,
