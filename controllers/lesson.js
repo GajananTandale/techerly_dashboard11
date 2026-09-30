@@ -2,7 +2,7 @@ const crs = require("crypto-random-string");
 const Lesson = require("../database/models/lesson");
 const Bookmark = require("../database/models/bookmark");
 const { dashIt } = require("../handlers/misc");
-const { getVideoMetadata } = require("../utils/youtube");
+const { getVideoMetadata, extractVideoId } = require("../utils/youtube");
 
 const genName = (name = "") => name + "-" + crs({ length: 6, characters: "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ" });
 
@@ -114,10 +114,18 @@ const lessonEdit = async (req, res) => {
     const id = req.params.id;
 
     if (!name || !youtube_link)
-      return res.send({
+      return res.status(400).send({
         success: false,
         message: "Provide required fields",
       });
+
+    const videoId = extractVideoId(youtube_link);
+    if (!videoId) {
+      return res.status(400).send({
+        success: false,
+        message: "Invalid YouTube URL",
+      });
+    }
 
     const lesson = await Lesson.findOne({ _id: id });
 
@@ -132,11 +140,20 @@ const lessonEdit = async (req, res) => {
       }
       if (lesson.desc !== desc) lesson.desc = desc;
       if (lesson.youtube_link !== youtube_link) {
-        const { durationSeconds } = await getVideoMetadata(youtube_link);
+        let durationSeconds = 0;
+        try {
+          const metadata = await getVideoMetadata(youtube_link);
+          if (metadata && typeof metadata.durationSeconds === "number") {
+            durationSeconds = metadata.durationSeconds;
+          }
+        } catch (mErr) {
+          console.warn("EDIT LESSON WARNING: Could not fetch YouTube duration:", mErr.message || mErr);
+          durationSeconds = lesson.seconds || 0;
+        }
 
         lesson.youtube_link = youtube_link;
-        lesson.seconds = durationSeconds;
-        lesson.minutes = Math.ceil(durationSeconds / 60);
+        lesson.seconds = durationSeconds > 0 ? durationSeconds : 0;
+        lesson.minutes = durationSeconds > 0 ? Math.ceil(durationSeconds / 60) : 0;
       }
 
       const saved = await lesson.save();
@@ -152,7 +169,7 @@ const lessonEdit = async (req, res) => {
 
     return res.status(404).send({ message: "Not found" });
   } catch (error) {
-    console.log(error);
+    console.error("EDIT LESSON ERROR:", error);
     return res.status(500).send({ message: "Internal server error" });
   }
 };

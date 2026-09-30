@@ -1,7 +1,7 @@
 const crs = require("crypto-random-string");
 const Course = require("../database/models/course");
 const Lesson = require("../database/models/lesson");
-const { getVideoMetadata } = require("../utils/youtube");
+const { getVideoMetadata, extractVideoId } = require("../utils/youtube");
 const { dashIt } = require("../handlers/misc");
 
 const isValidObjectId = (str) => {
@@ -135,24 +135,47 @@ const addNewLesson = async (req, res) => {
   try {
     const { name, desc, youtube_link } = req.body;
     if (!name || !youtube_link)
-      return res.send({
+      return res.status(400).send({
         success: false,
         message: "Provide required fields",
       });
-    const { durationSeconds } = await getVideoMetadata(youtube_link);
+
+    const videoId = extractVideoId(youtube_link);
+    if (!videoId) {
+      return res.status(400).send({
+        success: false,
+        message: "Invalid YouTube URL",
+      });
+    }
+
+    let durationSeconds = 0;
+    try {
+      const metadata = await getVideoMetadata(youtube_link);
+      if (metadata && typeof metadata.durationSeconds === "number") {
+        durationSeconds = metadata.durationSeconds;
+      }
+    } catch (metaErr) {
+      console.warn("ADD LESSON WARNING: Could not fetch YouTube duration:", metaErr.message || metaErr);
+      durationSeconds = 0;
+    }
+
     const { id } = req.params;
     const user_id = req.user ? req.user._id : null;
     const unique_name = dashIt(name);
     let lesson_id = genName(unique_name);
     while (await Lesson.findOne({ id: lesson_id }))
       lesson_id = genName(unique_name);
+
+    const seconds = durationSeconds > 0 ? durationSeconds : 0;
+    const minutes = seconds > 0 ? Math.ceil(seconds / 60) : 0;
+
     const newLesson = new Lesson({
       id: lesson_id,
       name,
       youtube_link,
       desc,
-      seconds: durationSeconds,
-      minutes: Math.ceil(durationSeconds / 60),
+      seconds,
+      minutes,
     });
     if (newLesson) {
       const course = await Course.findOneAndUpdate(
@@ -185,14 +208,10 @@ const addNewLesson = async (req, res) => {
       message: "Could not create lesson",
     });
   } catch (error) {
-    console.log(error);
-    const message =
-      error.message && error.message.includes("YouTube")
-        ? error.message
-        : "Could not save lesson. Check the YouTube URL and try again.";
+    console.error("ADD LESSON ERROR:", error);
     return res.status(500).send({
       success: false,
-      message,
+      message: "Internal server error while saving lesson",
     });
   }
 };
