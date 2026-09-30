@@ -61,3 +61,45 @@ typings/
 .next
 .vscode/
 data/generated/*
+
+
+
+# Environment variables
+.env
+.env.*
+!.env.example
+!client/.env.example
+
+# Build files
+client/build/
+
+# Dependencies
+node_modules/
+client/node_modules/
+
+# Editor / OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Cache files
+.cache/
+.eslintcache
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# Secrets / certificates
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Local databases / dumps
+*.sqlite
+*.sqlite3
+*.db
+*.dump
